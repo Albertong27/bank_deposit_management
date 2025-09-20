@@ -1,19 +1,18 @@
 # Bank Deposit Management System
 
-A Flask-based web application for managing bank deposits, calculating interest rates, and tracking deposit maturity values.
+A Flask-based web application for managing bank deposits, calculating interest rates, and tracking deposit maturity values with support for multiple users.
+ 
 
 ## Features
-
-- **Deposit Management**: Add, view, edit, and delete bank deposits
-- **Bank Management**: Add and configure banks with default interest rates
-- **IDR Currency Support**: Full support for Indonesian Rupiah with proper formatting
-- **Interest Calculations**: Automatic calculation of interest before and after tax
-- **Daily Interest Tracking**: Calculate daily interest earned
-- **Maturity Tracking**: Track total amount expected at maturity
-- **Summary Dashboard**: Overview of all deposits with financial statistics
-- **Configurable Tax Rates**: Default Indonesian tax rate (20%) with override capability
-- **Bank-Specific Rates**: Each bank can have its own default interest rate
-- **Data Persistence**: Store data in JSON format for easy backup and portability
+- Deposit CRUD: add, view, edit and delete deposits. Each deposit stores account holder name and number, principal, interest rate (can override bank default), deposit and maturity dates, and tax rate.
+- Automatic interest calculations: computes interest before tax, tax amount, interest after tax, total maturity amount, daily interest, and the time period (in years) used for calculations.
+- Bank management: create, edit and remove bank records; each bank can carry a default interest rate that is applied when creating new deposits.
+- Summary dashboard: a summary page that aggregates deposits and shows totals/overview (see `templates/summary.html`).
+- Authentication skeleton: login and admin user pages are included (`templates/login.html`, `templates/admin_users.html`) for simple access control in development.
+- Settings page: update application defaults and tax rates via the web UI (`templates/settings.html`).
+- JSON API: a lightweight API endpoint is available to fetch deposits as JSON (e.g. `GET /api/deposits`).
+- Templated UI: server-rendered pages using Jinja2 templates located in the `templates/` folder for quick customization.
+- Local persistence: application stores data in local files for easy backup and restore (see Data Storage below).
 
 ## Installation
 
@@ -23,17 +22,6 @@ A Flask-based web application for managing bank deposits, calculating interest r
    pip install -r requirements.txt
    ```
 
-## Usage
-
-1. Run the Flask application:
-   ```bash
-   python app.py
-   ```
-
-2. Open your web browser and navigate to `http://localhost:5000`
-
-3. Start by adding your first deposit using the "Add Deposit" button
-
 ## Features Overview
 
 ### Adding Deposits
@@ -42,7 +30,7 @@ A Flask-based web application for managing bank deposits, calculating interest r
 - Principal amount in Indonesian Rupiah (IDR)
 - Interest rate (annual percentage, can override bank default)
 - Deposit and maturity dates
-- Tax rate (defaults to Indonesian tax rate of 20%)
+- Tax rate
 
 ### Automatic Calculations
 The system automatically calculates:
@@ -54,10 +42,9 @@ The system automatically calculates:
 - Time period in years
 
 ### Data Storage
-- All data is stored in `data/deposits.json`
-- Bank configurations stored in `data/config.json`
-- Easy to backup and restore
-- Human-readable JSON format
+- Primary storage: the app uses local database files in the `data/` folder (SQLite files such as `bank_deposits.db`). This keeps the app simple to run locally and to back up.
+- Config & models: `models.py` contains the deposit and bank logic as well as the persistence layer used by `app.py`.
+- Backups: copy the files in `data/` to create a quick backup; you can replace the storage with a proper RDBMS later for production.
 
 ### Bank Management
 - Start with empty bank list - add banks through the web interface
@@ -66,26 +53,32 @@ The system automatically calculates:
 - Interest rates can be overridden per deposit
 - Supports any bank name (Indonesian or international)
 
+### Multiuser 
+- Simple user authentication with login page
+- Admin user management page for adding/removing users
+
 ## Project Structure
 
 ```
 bank_deposit_management/
-├── app.py                 # Main Flask application
-├── models.py              # Deposit management logic & configuration
-├── requirements.txt       # Python dependencies
-├── README.md             # This file
-├── templates/            # HTML templates
-│   ├── base.html         # Base template
-│   ├── index.html        # Main dashboard
-│   ├── add_deposit.html  # Add new deposit form
-│   ├── view_deposit.html # View deposit details
-│   ├── edit_deposit.html # Edit deposit form
-│   ├── summary.html      # Summary dashboard
-│   ├── banks.html        # Bank management
-│   └── settings.html     # Application settings
-└── data/                 # Data storage directory
-    ├── deposits.json     # Deposit data (created automatically)
-    └── config.json       # Configuration data (created automatically)
+├── app.py
+├── models.py
+├── requirements.txt
+├── README.md
+├── templates/
+│   ├── base.html
+│   ├── index.html
+│   ├── add_deposit.html
+│   ├── view_deposit.html
+│   ├── edit_deposit.html
+│   ├── summary.html
+│   ├── banks.html
+│   ├── login.html
+│   ├── admin_users.html
+│   ├── settings.html
+│   └── footer.html
+└── data/ 
+   ├── bank_deposits.db (not included - automatically generated)
 ```
 
 ## API Endpoints
