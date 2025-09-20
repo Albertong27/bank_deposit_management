@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Add Deposit - Bank Deposit Management{% endblock %}
+
+{% block content %}
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="fas fa-plus-circle me-2"></i>Add New Deposit</h4>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="account_holder" class="form-label">Account Holder Name *</label>
+                                    <input type="text" class="form-control" id="account_holder" name="account_holder" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="account_number" class="form-label">Account Number *</label>
+                                    <input type="text" class="form-control" id="account_number" name="account_number" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="bank_name" class="form-label">Bank *</label>
+                                    {% if banks %}
+                                        <select class="form-control" id="bank_name" name="bank_name" required onchange="updateInterestRate()">
+                                            <option value="">Select Bank</option>
+                                            {% for bank_key, bank_data in banks.items() %}
+                                            <option value="{{ bank_key }}" data-rate="{{ bank_data.default_interest_rate }}">
+                                                {{ bank_data.name }} ({{ bank_data.default_interest_rate }}%)
+                                            </option>
+                                            {% endfor %}
+                                        </select>
+                                    {% else %}
+                                        <div class="alert alert-warning">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                            No banks configured. Please <a href="{{ url_for('banks') }}" class="alert-link">add banks first</a>.
+                                        </div>
+                                        <input type="text" class="form-control" id="bank_name" name="bank_name" 
+                                               placeholder="Enter bank name manually" required>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="principal_amount" class="form-label">Principal Amount (IDR) *</label>
+                                    <input type="number" class="form-control" id="principal_amount" name="principal_amount" 
+                                           step="1000" min="0" required>
+                                    <div class="form-text">Enter amount in Indonesian Rupiah</div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="interest_rate" class="form-label">Interest Rate (%) *</label>
+                                    <input type="number" class="form-control" id="interest_rate" name="interest_rate" 
+                                           step="0.01" min="0" max="100" required>
+                                    <div class="form-text">You can override the bank's default rate</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="tax_rate" class="form-label">Tax Rate (%)</label>
+                                    <input type="number" class="form-control" id="tax_rate" name="tax_rate" 
+                                           step="0.01" min="0" max="100" value="{{ default_tax_rate }}">
+                                    <div class="form-text">Default: {{ default_tax_rate }}% (Indonesian tax rate)</div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="deposit_date" class="form-label">Deposit Date *</label>
+                                    <input type="date" class="form-control" id="deposit_date" name="deposit_date" required onchange="updateMaturityDateOptions()">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="maturity_date" class="form-label">Maturity Date *</label>
+                                    <div class="input-group">
+                                        <input type="date" class="form-control" id="maturity_date" name="maturity_date" required>
+                                        <div class="input-group-append">
+                                            <div class="btn-group" role="group">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setMaturityDate(1)" title="1 Month">
+                                                    1M
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setMaturityDate(2)" title="2 Months">
+                                                    2M
+                                                </button>
+                                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="setMaturityDate(3)" title="3 Months">
+                                                    3M
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <a href="{{ url_for('index') }}" class="btn btn-secondary me-md-2">
+                                    <i class="fas fa-times me-1"></i>Cancel
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-1"></i>Add Deposit
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Set default deposit date to today
+    document.getElementById('deposit_date').valueAsDate = new Date();
+    
+    // Set default maturity date to 1 month from today
+    const today = new Date();
+    const oneMonthLater = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+    document.getElementById('maturity_date').valueAsDate = oneMonthLater;
+    
+    // Function to update interest rate when bank is selected
+    function updateInterestRate() {
+        const bankSelect = document.getElementById('bank_name');
+        const interestRateInput = document.getElementById('interest_rate');
+        
+        if (bankSelect.value) {
+            const selectedOption = bankSelect.options[bankSelect.selectedIndex];
+            const defaultRate = selectedOption.getAttribute('data-rate');
+            interestRateInput.value = defaultRate;
+        }
+    }
+    
+    // Function to set maturity date based on deposit date + months
+    function setMaturityDate(months) {
+        const depositDateInput = document.getElementById('deposit_date');
+        const maturityDateInput = document.getElementById('maturity_date');
+        
+        if (depositDateInput.value) {
+            const depositDate = new Date(depositDateInput.value);
+            const maturityDate = new Date(depositDate.getFullYear(), depositDate.getMonth() + months, depositDate.getDate());
+            maturityDateInput.valueAsDate = maturityDate;
+        } else {
+            // If no deposit date is selected, use today as base
+            const today = new Date();
+            const maturityDate = new Date(today.getFullYear(), today.getMonth() + months, today.getDate());
+            maturityDateInput.valueAsDate = maturityDate;
+        }
+    }
+    
+    // Function to update maturity date options when deposit date changes
+    function updateMaturityDateOptions() {
+        const depositDateInput = document.getElementById('deposit_date');
+        const maturityDateInput = document.getElementById('maturity_date');
+        
+        // If maturity date is not set or is the old default, update it to 1 month from deposit date
+        if (!maturityDateInput.value || maturityDateInput.value === '') {
+            if (depositDateInput.value) {
+                const depositDate = new Date(depositDateInput.value);
+                const maturityDate = new Date(depositDate.getFullYear(), depositDate.getMonth() + 1, depositDate.getDate());
+                maturityDateInput.valueAsDate = maturityDate;
+            }
+        }
+    }
+</script>
+{% endblock %}

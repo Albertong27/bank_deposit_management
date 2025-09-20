@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Bank Deposit Management{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-cog me-2"></i>Application Settings</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-sliders-h me-2"></i>General Settings</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('update_settings') }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="currency_symbol" class="form-label">Currency Symbol</label>
+                            <input type="text" class="form-control" id="currency_symbol" value="{{ currency_symbol }}" readonly>
+                            <div class="form-text">Currently set to Indonesian Rupiah (IDR)</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="default_tax_rate" class="form-label">Default Tax Rate (%) *</label>
+                            <input type="number" class="form-control" id="default_tax_rate" name="default_tax_rate" 
+                                   step="0.01" min="0" max="100" value="{{ default_tax_rate }}" required>
+                            <div class="form-text">Default tax rate for new deposits (Indonesian tax rate)</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Save Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle me-2"></i>System Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Currency Configuration</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Currency:</strong> Indonesian Rupiah (IDR)</li>
+                            <li><strong>Symbol:</strong> {{ currency_symbol }}</li>
+                            <li><strong>Format:</strong> Rp 1.000.000 (with dot separators)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Tax Configuration</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Default Tax Rate:</strong> {{ default_tax_rate }}%</li>
+                            <li><strong>Tax Type:</strong> Interest Tax</li>
+                            <li><strong>Calculation:</strong> Applied to interest earned</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Bank Deposit Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .deposit-card {
+        transition: transform 0.2s;
+    }
+    .deposit-card:hover {
+        transform: translateY(-2px);
+    }
+    .status-badge {
+        font-size: 0.8em;
+    }
+    .summary-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2><i class="fas fa-piggy-bank me-2"></i>All Deposits</h2>
+                    <a href="{{ url_for('add_deposit') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Add New Deposit
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% if deposits %}
+            <div class="row">
+                {% for deposit in deposits %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card deposit-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">{{ deposit.account_holder }}</h6>
+                            <span class="badge {{ 'bg-success' if deposit.is_matured else 'bg-warning' }} status-badge">
+                                {{ 'Matured' if deposit.is_matured else 'Active' }}
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <strong>Bank:</strong> {{ deposit.bank_name }}<br>
+                                <strong>Account:</strong> {{ deposit.account_number }}<br>
+                                <strong>Principal:</strong> Rp {{ "{:,.0f}".format(deposit.principal_amount).replace(',', '.') }}<br>
+                                <strong>Interest Rate:</strong> {{ "{:.2f}".format(deposit.interest_rate) }}%<br>
+                                <strong>Maturity Amount:</strong> Rp {{ "{:,.0f}".format(deposit.total_maturity_amount).replace(',', '.') }}<br>
+                                <strong>Maturity Date:</strong> {{ deposit.maturity_date }}
+                            </p>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="btn-group w-100" role="group">
+                                <a href="{{ url_for('view_deposit', deposit_id=deposit.deposit_id) }}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <a href="{{ url_for('edit_deposit', deposit_id=deposit.deposit_id) }}" 
+                                   class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                                <button type="button" class="btn btn-outline-danger btn-sm" 
+                                        onclick="deleteDeposit('{{ deposit.deposit_id }}', '{{ deposit.account_holder }}')">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-piggy-bank fa-5x text-muted mb-3"></i>
+                <h4 class="text-muted">No deposits found</h4>
+                <p class="text-muted">Start by adding your first deposit to get started.</p>
+                <a href="{{ url_for('add_deposit') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add First Deposit
+                </a>
+            </div>
+        {% endif %}
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the deposit for <strong id="deleteAccountHolder"></strong>?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function deleteDeposit(depositId, accountHolder) {
+        document.getElementById('deleteAccountHolder').textContent = accountHolder;
+        document.getElementById('deleteForm').action = "{{ url_for('delete_deposit', deposit_id='') }}" + depositId;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
+</script>
+{% endblock %}

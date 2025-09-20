@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Summary - Bank Deposit Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .summary-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+    .stat-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border: none;
+    }
+    .success-card {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border: none;
+    }
+    .warning-card {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        color: white;
+        border: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-chart-bar me-2"></i>Deposit Summary</h2>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Deposits
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {% if summary.total_deposits > 0 %}
+            <!-- Overview Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card summary-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-piggy-bank fa-3x mb-3"></i>
+                            <h4>{{ summary.total_deposits }}</h4>
+                            <p class="mb-0">Total Deposits</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card stat-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-dollar-sign fa-3x mb-3"></i>
+                            <h4>Rp {{ "{:,.0f}".format(summary.total_principal).replace(',', '.') }}</h4>
+                            <p class="mb-0">Total Principal</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card success-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-line fa-3x mb-3"></i>
+                            <h4>Rp {{ "{:,.0f}".format(summary.total_maturity_amount).replace(',', '.') }}</h4>
+                            <p class="mb-0">Total Maturity Value</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="card warning-card h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-percentage fa-3x mb-3"></i>
+                            <h4>{{ "{:.2f}".format(summary.average_interest_rate) }}%</h4>
+                            <p class="mb-0">Average Interest Rate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Statistics -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-coins me-2"></i>Interest Breakdown</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Total Interest (Before Tax):</strong></td>
+                                    <td class="text-end">Rp {{ "{:,.0f}".format(summary.total_interest_before_tax).replace(',', '.') }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Total Tax Paid:</strong></td>
+                                    <td class="text-end text-danger">Rp {{ "{:,.0f}".format(summary.total_tax_paid).replace(',', '.') }}</td>
+                                </tr>
+                                <tr class="border-top">
+                                    <td><strong>Total Interest (After Tax):</strong></td>
+                                    <td class="text-end text-success"><strong>Rp {{ "{:,.0f}".format(summary.total_interest_after_tax).replace(',', '.') }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info-circle me-2"></i>Deposit Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Active Deposits:</strong></td>
+                                    <td class="text-end">
+                                        <span class="badge bg-warning">{{ summary.active_deposits }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Matured Deposits:</strong></td>
+                                    <td class="text-end">
+                                        <span class="badge bg-success">{{ summary.matured_deposits }}</span>
+                                    </td>
+                                </tr>
+                                <tr class="border-top">
+                                    <td><strong>Total Deposits:</strong></td>
+                                    <td class="text-end"><strong>{{ summary.total_deposits }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Financial Summary -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-calculator me-2"></i>Financial Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4 text-center">
+                                    <div class="p-3">
+                                        <h6 class="text-muted">Total Investment</h6>
+                                        <h4 class="text-primary">Rp {{ "{:,.0f}".format(summary.total_principal).replace(',', '.') }}</h4>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div class="p-3">
+                                        <h6 class="text-muted">Total Returns</h6>
+                                        <h4 class="text-success">Rp {{ "{:,.0f}".format(summary.total_interest_after_tax).replace(',', '.') }}</h4>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <div class="p-3">
+                                        <h6 class="text-muted">Final Value</h6>
+                                        <h4 class="text-info">Rp {{ "{:,.0f}".format(summary.total_maturity_amount).replace(',', '.') }}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="text-center">
+                                <h6 class="text-muted">Return on Investment</h6>
+                                <h3 class="text-success">
+                                    {{ "{:.2f}".format((summary.total_interest_after_tax / summary.total_principal) * 100) }}%
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-chart-bar fa-5x text-muted mb-3"></i>
+                <h4 class="text-muted">No deposits to summarize</h4>
+                <p class="text-muted">Add some deposits to see the summary statistics.</p>
+                <a href="{{ url_for('add_deposit') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add First Deposit
+                </a>
+            </div>
+        {% endif %}
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}View Deposit - Bank Deposit Management{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+    .calculation-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2><i class="fas fa-eye me-2"></i>Deposit Details</h2>
+                    <div>
+                        <a href="{{ url_for('edit_deposit', deposit_id=deposit.deposit_id) }}" class="btn btn-primary me-2">
+                            <i class="fas fa-edit me-1"></i>Edit
+                        </a>
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Basic Information -->
+            <div class="col-md-6 mb-4">
+                <div class="card info-card h-100">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle me-2"></i>Basic Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td><strong>Deposit ID:</strong></td>
+                                <td>{{ deposit.deposit_id }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Account Holder:</strong></td>
+                                <td>{{ deposit.account_holder }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bank:</strong></td>
+                                <td>{{ deposit.bank_name }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Account Number:</strong></td>
+                                <td>{{ deposit.account_number }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Principal Amount:</strong></td>
+                                <td>Rp {{ "{:,.0f}".format(deposit.principal_amount).replace(',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Interest Rate:</strong></td>
+                                <td>{{ "{:.2f}".format(deposit.interest_rate) }}%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tax Rate:</strong></td>
+                                <td>{{ "{:.2f}".format(deposit.tax_rate) }}%</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Deposit Date:</strong></td>
+                                <td>{{ deposit.deposit_date }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Maturity Date:</strong></td>
+                                <td>{{ deposit.maturity_date }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Status:</strong></td>
+                                <td>
+                                    <span class="badge {{ 'bg-success' if deposit.is_matured else 'bg-warning' }}">
+                                        {{ 'Matured' if deposit.is_matured else 'Active' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculations -->
+            <div class="col-md-6 mb-4">
+                <div class="card calculation-card h-100">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calculator me-2"></i>Interest Calculations</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless text-white">
+                            <tr>
+                                <td><strong>Time Period:</strong></td>
+                                <td>{{ "{:.2f}".format(deposit.days_period) }} days</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Interest (Before Tax):</strong></td>
+                                <td>Rp {{ "{:,.0f}".format(deposit.interest_before_tax).replace(',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tax Amount:</strong></td>
+                                <td>Rp {{ "{:,.0f}".format(deposit.tax_amount).replace(',', '.') }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Interest (After Tax):</strong></td>
+                                <td>Rp {{ "{:,.0f}".format(deposit.interest_after_tax).replace(',', '.') }}</td>
+                            </tr>
+                            <tr class="border-top">
+                                <td><strong>Total Maturity Amount:</strong></td>
+                                <td><strong>Rp {{ "{:,.0f}".format(deposit.total_maturity_amount).replace(',', '.') }}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Daily Interest Information -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-calendar-day me-2"></i>Daily Interest Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-coins me-1"></i>Daily Interest (Before Tax)</h6>
+                                    <p class="mb-0">Rp {{ "{:,.0f}".format(deposit.daily_interest_before_tax).replace(',', '.') }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="alert alert-success">
+                                    <h6><i class="fas fa-coins me-1"></i>Daily Interest (After Tax)</h6>
+                                    <p class="mb-0">Rp {{ "{:,.0f}".format(deposit.daily_interest_after_tax).replace(',', '.') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="fas fa-info-circle me-1"></i>
+                            <strong>Note:</strong> Daily interest is calculated based on the annual interest rate divided by 365.25 days.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metadata -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6><i class="fas fa-clock me-2"></i>Record Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <small class="text-muted">
+                            <strong>Created:</strong> {{ deposit.created_at }}<br>
+                            {% if deposit.updated_at %}
+                            <strong>Last Updated:</strong> {{ deposit.updated_at }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
